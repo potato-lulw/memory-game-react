@@ -1,4 +1,5 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
+import SingleCard from './SingleCard';
 
 const fruits = [
     {"src": "./images/apple.png", "matched": false},
@@ -12,6 +13,10 @@ const fruits = [
 const Board = () => {
     const [cards, setCards] = useState([])
     const [turns, setTurns] = useState(0);
+    const [clickOne, setClickOne] = useState(null);
+    const [clickTwo, setClickTwo] = useState(null);
+
+
     const shuffleFruits = () => {
         const shuffledFruits = [...fruits, ...fruits]
             .sort(() => Math.random() - 0.5)
@@ -23,7 +28,46 @@ const Board = () => {
         const shuffledFruits = shuffleFruits();
         setCards(shuffledFruits);
         setTurns(0);
-        console.log(shuffledFruits, turns);
+        setClickOne(null)
+        setClickOne(null)
+        // console.log(shuffledFruits, turns);
+    }
+
+    const handleCardClick = (card) => {
+        // console.log(card);
+        clickOne ? setClickTwo(card) : setClickOne(card);
+
+    }
+
+    useEffect(() => {
+        if(clickOne && clickTwo) {
+            if(clickOne.src === clickTwo.src) {
+                console.log("Match")
+                setCards(prevCards => (
+                    prevCards.map(card => {
+                        if(card.src === clickOne.src) {
+                            return {
+                                ...card,
+                                matched: true
+                            }
+                        }
+                        else return card;
+                    })
+                ))
+                resetTurn();
+            }
+            else {
+                console.log("No match")
+                resetTurn();
+            }
+        }
+    }, [clickOne, clickTwo])
+
+    
+    const resetTurn = () => {
+        setClickOne(null);
+        setClickTwo(null);
+        setTurns(prevTurn => prevTurn + 1);
     }
 
    
@@ -34,10 +78,7 @@ const Board = () => {
                 {
                     cards.map((card) => {
                         return (
-                            <div key={card.id} className='bg-[#252a40] p-2 rounded-md border border-gray-'>
-                                <img src={card.src} alt={card.src} className=' md:w-36 md:h-36 sm:w-12 sm:h-12 w-8 h-8' />
-                                
-                            </div>
+                            <SingleCard key={card.id} handleCardClick={handleCardClick} card={card}/>
                         )
                     })
                 }
