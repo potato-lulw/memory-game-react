@@ -15,6 +15,7 @@ const Board = () => {
   const [turns, setTurns] = useState(0);
   const [clickOne, setClickOne] = useState(null);
   const [clickTwo, setClickTwo] = useState(null);
+  const [disabled, setDisabled] = useState(false);
 
   const successAudioRef = useRef(new Audio("./sounds/success.mp3"));
   const errorAudioRef = useRef(new Audio("./sounds/error.mp3"));
@@ -33,16 +34,15 @@ const Board = () => {
     setTurns(0);
     setClickOne(null);
     setClickTwo(null);
-    // console.log(shuffledFruits, turns);
   };
 
   const handleCardClick = (card) => {
-    // console.log(card);
     clickOne ? setClickTwo(card) : setClickOne(card);
   };
 
   useEffect(() => {
     if (clickOne && clickTwo) {
+      setDisabled(true);
       if (clickOne.src === clickTwo.src) {
         console.log("Match");
         successAudioRef.current.play();
@@ -88,18 +88,13 @@ const Board = () => {
     setTimeout(() => {
       setClickOne(null);
       setClickTwo(null);
+      setTurns((prevTurn) => prevTurn + 1);
+      setDisabled(false);
     }, 500);
-    setTurns((prevTurn) => prevTurn + 1);
   };
 
   return (
     <div className="flex flex-col items-center justify-center">
-      <button
-        onClick={handleNewGameClick}
-        className="px-2 py-1 bg-red-500 rounded-md w-fit my-6 font-semibold"
-      >
-        New Game
-      </button>
       <div className="grid grid-flow-row grid-cols-4 gap-4 my-2">
         {cards.map((card) => {
           return (
@@ -108,10 +103,17 @@ const Board = () => {
               handleCardClick={handleCardClick}
               card={card}
               flipped={card === clickOne || card === clickTwo || card.matched}
+              disabled={disabled}
             />
           );
         })}
       </div>
+      <button
+        onClick={handleNewGameClick}
+        className="px-2 py-1 bg-red-500 rounded-md w-fit my-6 font-semibold"
+      >
+        New Game
+      </button>
       <p className="text-lg">Turns - {turns}</p>
     </div>
   );
